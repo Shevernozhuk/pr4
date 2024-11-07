@@ -169,23 +169,31 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const renderQuestions = (indexQuestion) => {
 
-            if(numberQuestion == 0) {
-                prevButton.classList.add('hidden');
-            } 
-            else if(prevButton.classList.contains('hidden')) {
-                prevButton.classList.remove('hidden');
+            switch (numberQuestion) {
+                case 0:
+                    prevButton.classList.add('hidden');
+                    break;
+                default:
+                    if (prevButton.classList.contains('hidden')) {
+                        prevButton.classList.remove('hidden');
+                    }
+                    break;
             }
-
-            if(numberQuestion == questions.length-1) {
-                nextButton.classList.add('hidden');
-            } 
-            else if(nextButton.classList.contains('hidden')) {
-                nextButton.classList.remove('hidden');
+        
+            switch (numberQuestion) {
+                case questions.length - 1:
+                    nextButton.classList.add('hidden');
+                    break;
+                default:
+                    if (nextButton.classList.contains('hidden')) {
+                        nextButton.classList.remove('hidden');
+                    }
+                    break;
             }
-
+        
             formAnswers.innerHTML = '';
             questionTitle.textContent = `${questions[indexQuestion].question}`;
-
+        
             renderAnswers(indexQuestion);
         }
         renderQuestions(numberQuestion);
