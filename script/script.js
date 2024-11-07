@@ -1,3 +1,6 @@
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+import { getDatabase, ref, get, push } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
+
 document.addEventListener('DOMContentLoaded', function () {
     const btnOpenModal = document.querySelector('#btnOpenModal');
     const modalBlock = document.querySelector('#modalBlock');
@@ -9,8 +12,41 @@ document.addEventListener('DOMContentLoaded', function () {
     const prevButton = document.querySelector('#prev');
     const sendButton = document.querySelector('#send');
     const modalDialog = document.querySelector('.modal-dialog');
+  
+    // Your web app's Firebase configuration
+    const firebaseConfig = {
+        apiKey: "AIzaSyCklW_9ZdULiaxJ178IsnY0sACGYpz_rcc",
+        authDomain: "testburger-fb4a6.firebaseapp.com",
+        projectId: "testburger-fb4a6",
+        storageBucket: "testburger-fb4a6.firebasestorage.app",
+        messagingSenderId: "592182725190",
+        appId: "1:592182725190:web:5f569d2a95926c0373d847"
+    };
+    
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    
+    const getData = () => {
+        formAnswers.textContent = 'LOAD';
 
+        nextButton.classList.add('d-none');
+        prevButton.classList.add('d-none');
 
+        setTimeout(() => {
+            const db = getDatabase();
+            get(ref(db, 'questions'))
+            .then((snapshot) => {
+                if (snapshot.exists()) {
+                    playTest(snapshot.val());
+                } else {
+                    console.log("No data available");
+                }
+            })
+            .catch((error) => {
+                console.error("Error fetching data:", error);
+            });
+        }, 500)
+    }
 
 
     let clientWidth = document.documentElement.clientWidth;
@@ -126,7 +162,7 @@ document.addEventListener('DOMContentLoaded', function () {
     btnOpenModal.addEventListener('click', () => {
         requestAnimationFrame(animateModal);
         modalBlock.classList.add('d-block');
-        playTest();
+        getData();
     });
 
 
@@ -147,11 +183,11 @@ document.addEventListener('DOMContentLoaded', function () {
         burgerBtn.classList.remove('active');
     });
 
-    const playTest = () => {
+    const playTest = (questions) => {
         const finalAnswers = [];
         let numberQuestion = 0;
 
-        renderAnswers = (index) => {
+        const renderAnswers = (index) => {
             
 
             questions[index].answers.forEach((answer) => {
@@ -171,41 +207,6 @@ document.addEventListener('DOMContentLoaded', function () {
             })
         }
 
-        // const renderQuestions = (indexQuestion) => {
-        //     formAnswers.innerHTML = '';
-
-        //     if(numberQuestion >= 0 && numberQuestion <= questions.length - 1){
-        //         questionTitle.textContent = `${questions[indexQuestion].question}`;
-        //         renderAnswers(indexQuestion);
-        //         nextButton.classList.remove('d-none');
-        //         prevButton.classList.remove('d-none');
-        //         sendButton.classList.add('d-none');
-        //     }
-
-        //     if(numberQuestion === 0){
-        //         prevButton.classList.add('d-none');
-        //     }
-
-        //     if(numberQuestion === questions.length){
-        //         nextButton.classList.add('d-none');
-        //         prevButton.classList.add('d-none');
-        //         sendButton.classList.remove('d-none');
-
-        //         formAnswers.innerHTML = `
-        //         <div class="form-group">
-        //             <label for="numberPhone">Enter your number</label>
-        //             <input type="phone" class="form-control" id="numberPhone">
-        //         </div>
-        //         `;
-        //     }
-            
-        //     if(numberQuestion === questions.length + 1){
-        //         formAnswers.textContent = 'Спасибо за пройденний тест!';
-        //         setTimeout(() => {
-        //             modalBlock.classList.remove('d-block');
-        //         }, 2000);
-        //     }
-        // }
         const renderQuestions = (indexQuestion) => {
             formAnswers.innerHTML = '';
         
@@ -280,7 +281,14 @@ document.addEventListener('DOMContentLoaded', function () {
             checkAnswer();
             numberQuestion++;
             renderQuestions(numberQuestion);
-            console.log(finalAnswers);
+            const db = getDatabase();
+            push(ref(db, 'contacts'), finalAnswers)
+                .then(() => {
+                    console.log("Data saved successfully!");
+                })
+                .catch((error) => {
+                    console.error("Error saving data:", error);
+                });
         }
     };
 });
